@@ -52,3 +52,7 @@ class Controller:
 		if isRed != self.isRed:
 			print("changed")
 			self.isRed = isRed
+			
+	#Manual oid: 1.3.6.1.4.1.1206.4.2.1.4.1.0
+	#Phase call oid: 1.3.6.1.4.1.1206.4.2.1.1.5.1.6.1
+		#bitwise call to each phase
