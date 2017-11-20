@@ -1,58 +1,36 @@
-import subprocess
-from pysnmp.hlapi import *
-from pysnmp.entity.rfc3413.oneliner import cmdgen
-from pysnmp.proto import rfc1902
-
-cmdGen = cmdgen.CommandGenerator()
+import time
 
 #Controller class
 class Controller:
-	exe = None
-	isRed = False
-	countdownTimer = False
-	ip = "127.0.0.1"
-	port = 501
-	def __init__(self):
-		#start controller
-		self.exe = subprocess.Popen(["./controller/asc3.exe"],cwd="./controller/")
+	activePhase = None
+	sequence = []
+	killed = False
 	
-	def kill(self):
-		self.exe.terminate()
-	
-	def snmpGet(self, oid):
-		## read value from controller
-		errorIndication, _, _, varBinds = cmdGen.getCmd(
-			cmdgen.CommunityData('public', mpModel=0),
-			cmdgen.UdpTransportTarget((self.ip, self.port)),
-			cmdgen.MibVariable(oid)
-		)
-		if errorIndication != None:
-			raise errorIndication
+	def __init__(self, p):
+		if len(p) > 0:
+			self.sequence = p
+			self.activePhase = 0
+			self.run()
 		else:
-			return varBinds[0][1]
+			print("No controller sequence!!!")
 	
-	def snmpSet(self, oid, value):
-		## write value to controller
-		while True:
-			errorIndication, _, _, varBinds = cmdGen.setCmd(
-				cmdgen.CommunityData('public', mpModel=0),
-				cmdgen.UdpTransportTarget((self.ip, self.port)),
-				(oid,value)
-			)
-			if errorIndication != None:
-				raise errorIndication
-			else:
-				if snmpGet(self.ip,self.port,oid)[0][1] == value:
-					return varBinds[0][1]
-					
-	def updateStatus(self, phase):
-		oid = "1.3.6.1.4.1.1206.4.2.1.1.4.1.2.1"
-		status = self.snmpGet(oid)
-		isRed = bool(int(bin(status)[10-phase]))
-		if isRed != self.isRed:
-			print("changed")
-			self.isRed = isRed
-			
-	#Manual oid: 1.3.6.1.4.1.1206.4.2.1.4.1.0
-	#Phase call oid: 1.3.6.1.4.1.1206.4.2.1.1.5.1.6.1
-		#bitwise call to each phase
+	def run(self):
+		while not self.killed:
+			self.sequence[self.activePhase].start()
+			self.activePhase = (self.activePhase + 1) % len(sequence)
+	
+	def stop(self):
+		self.killed = True
+	
+class Phase:
+	length = 0
+	id = None
+	def __init__(self,l, id):
+		self.length = l
+		self.id = id
+	
+	def start(self):
+		print("start ofphase "+str(self.id))
+		t0 = time.time()
+		while time.time() < t0 + self.length:
+			time.sleep(0.5)
