@@ -10,27 +10,42 @@ class Controller:
 		if len(p) > 0:
 			self.sequence = p
 			self.activePhase = 0
-			self.run()
+			#self.run()
 		else:
 			print("No controller sequence!!!")
 	
 	def run(self):
+		self.killed = False
 		while not self.killed:
 			self.sequence[self.activePhase].start()
-			self.activePhase = (self.activePhase + 1) % len(sequence)
+			self.activePhase = (self.activePhase + 1) % len(self.sequence)
 	
 	def stop(self):
 		self.killed = True
 	
 class Phase:
-	length = 0
+	elapsed = 0
+	min = 0
+	max = 0
+	extend = True
+	
 	id = None
-	def __init__(self,l, id):
-		self.length = l
+	def __init__(self,min, max, id):
+		self.min = min
+		self.max = max
 		self.id = id
 	
 	def start(self):
-		print("start ofphase "+str(self.id))
-		t0 = time.time()
-		while time.time() < t0 + self.length:
-			time.sleep(0.5)
+		print("start of phase "+str(self.id))
+		self.elapsed = 0
+		for i in range(self.min):
+			time.sleep(1)
+			self.elapsed += 1
+			self.evaluateExtension()
+		while self.extend and self.elapsed < self.max:
+			time.sleep(1)
+			self.elapsed += 1
+			self.evaluateExtension()
+		
+	def evaluateExtension(self):
+		pass
