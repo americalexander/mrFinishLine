@@ -8,46 +8,25 @@ class Controller:
 	killed = False
 	
 	def __init__(self, p):
-		if len(p) > 0:
-			self.sequence = p
-			self.activePhase = 0
-			#self.run()
-		else:
-			print("No controller sequence!!!")
+		self.sequence = p
+		self.activePhase = 0
 	
-	def run(self):
-		self.killed = False
-		while not self.killed:
-			self.sequence[self.activePhase].start()
+	def advance(self):
+		extend = self.sequence[self.activePhase].advance()
+		if not extend:
 			self.activePhase = (self.activePhase + 1) % len(self.sequence)
-	
-	def stop(self):
-		self.killed = True
 	
 class Phase:
 	elapsed = 0.0
 	min = 0.0
 	max = 0.0
-	ext = True
-	vehicles = queue.Queue()
 	demand = 0.0
+	approach = None
 	
 	id = None
-	def __init__(self,min, max, id):
+	def __init__(self,min, max):
 		self.min = min
 		self.max = max
-		self.id = id
-	
-	def start(self):
-		print("start of phase "+str(self.id))
-		self.elapsed = 0.0
-		for i in range(self.min):
-			time.sleep(1)
-			self.elapsed += 1
-			self.evaluateExtension()
-		while self.extend() and self.elapsed < self.max:
-			time.sleep(0.1)
-			self.elapsed += 0.1
 	
 	def extend(self):
 		# TODO: get positions of cars
@@ -61,10 +40,47 @@ class Phase:
 		# TODO: use new positions to determine if there is a car inside threshold
 		
 		return self.ext
+	
+	def advance(self):
+		self.elapsed += 0.1
+		if self.elapsed >= self.max:
+			return True
+		elif self.elapsed < self.min:
+			self.elapsed = 0.0
+			return False
+		else:
+			ext = self.extend()
+			if not ext:
+				self.elapsed = 0.0
+			return ext
+	
+	def setApproach(self, approach):
+		self.approach = approach
 
-class Generator:
-	def generateVehicles():
-		# Use random number generator to create new vehicles randomly according to demand w/ random attributes
-		
-		# Be sure to ensure that if the link is full that no new vehicles are generated
-		pass
+class Approach:
+	vehs = []
+	length = 0.0
+	ts = []
+	phase = None
+	
+	def __init__(self, phase, length, ts):
+		self.phase = phase
+		self.phase.setApproach(self)
+		self.length = length
+		self.ts = ts
+	
+	def generateVeh(self, j):
+		if j in self.ts:
+			v = Vehicle(self, j)
+			if len(vehs) > 0:
+				v.vehInFront = vehs[-1]
+			vehs.append(v)
+	
+	def advance(self, j):
+		self.generateVeh(j)
+		for i in range(len(self.vehs)):
+			exited = self.vehs[i].advance(j)
+			if exited:
+				if self.vehs[i+1] != None:
+					self.vehs[i+1].vehInFront = None
+				del self.vehs[i]
