@@ -1,6 +1,6 @@
 import time
 import queue
-
+from vehicle import *
 #Controller class
 class Controller:
 	activePhase = None
@@ -12,9 +12,11 @@ class Controller:
 		self.activePhase = 0
 	
 	def advance(self):
-		extend = self.sequence[self.activePhase].advance()
-		if not extend:
+		for i in range(len(self.sequence)):
+			self.sequence[i].advance()
+		if self.sequence[self.activePhase].isRed[-1]:
 			self.activePhase = (self.activePhase + 1) % len(self.sequence)
+			self.sequence[self.activePhase].start()
 	
 class Phase:
 	elapsed = 0.0
@@ -22,6 +24,7 @@ class Phase:
 	max = 0.0
 	demand = 0.0
 	approach = None
+	isRed = [True]*7
 	
 	id = None
 	def __init__(self,min, max):
@@ -39,23 +42,29 @@ class Phase:
 		
 		# TODO: use new positions to determine if there is a car inside threshold
 		
-		return self.ext
+		return False
 	
 	def advance(self):
-		self.elapsed += 0.1
-		if self.elapsed >= self.max:
-			return True
-		elif self.elapsed < self.min:
-			self.elapsed = 0.0
-			return False
+		if self.isRed[-1]:
+			self.isRed.append(True)
 		else:
-			ext = self.extend()
-			if not ext:
-				self.elapsed = 0.0
-			return ext
+			self.elapsed += 0.1
+			if self.elapsed >= self.max:	#Reached max limit
+				self.isRed.append(True)		#Turn red
+			elif self.elapsed < self.min:	#Still in min time
+				self.isRed.append(False)	#Stay green
+			elif self.extend():				#Extension based on V2I
+				self.isRed.append(False)	#Stay green
+			else:							#No extension
+				self.isRed.append(True)		#Turn red
+		del self.isRed[0]
 	
 	def setApproach(self, approach):
 		self.approach = approach
+	
+	def start(self):
+		self.isRed[-1] = False
+		self.elapsed = 0.0
 
 class Approach:
 	vehs = []
@@ -72,9 +81,9 @@ class Approach:
 	def generateVeh(self, j):
 		if j in self.ts:
 			v = Vehicle(self, j)
-			if len(vehs) > 0:
-				v.vehInFront = vehs[-1]
-			vehs.append(v)
+			if len(self.vehs) > 0:
+				v.vehInFront = self.vehs[-1]
+			self.vehs.append(v)
 	
 	def advance(self, j):
 		self.generateVeh(j)
