@@ -20,7 +20,15 @@ class Simulator:
 		i = 0
 		while i < limit:
 			i+=1
-			print(i)
 			app1.advance(i)
 			app2.advance(i)
+			veh1 = None
+			veh2 = None
+			if len(app1.vehs)>0 :
+				veh1 = app1.vehs[0]
+				veh1 = veh1.pastPositions[-1]
+			if len(app1.vehs) > 1:
+				veh2 = app1.vehs[1]
+				veh2 = veh2.pastPositions[-1]
+			print("\r"+str(veh1)+"\t"+str(veh2))
 			controller.advance()

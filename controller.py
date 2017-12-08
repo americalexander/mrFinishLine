@@ -87,9 +87,11 @@ class Approach:
 	
 	def advance(self, j):
 		self.generateVeh(j)
+		exited = [False] * len(self.vehs)
 		for i in range(len(self.vehs)):
-			exited = self.vehs[i].advance(j)
-			if exited:
+			exited[i] = self.vehs[i].advance(j)
+		for i in range(len(exited)):
+			if exited[i]:
 				if self.vehs[i+1] != None:
 					self.vehs[i+1].vehInFront = None
 				del self.vehs[i]
