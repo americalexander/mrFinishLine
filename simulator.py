@@ -1,6 +1,7 @@
 import random
 from controller import *
 from vehicle import *
+import sys
 class Simulator:
 	def __init__(self,seed):
 		random.seed(seed)
@@ -30,5 +31,6 @@ class Simulator:
 			if len(app1.vehs) > 1:
 				veh2 = app1.vehs[1]
 				veh2 = veh2.pastPositions[-1]
-			print("\r"+str(veh1)+"\t"+str(veh2))
+			#print("\r"+str(veh1)+"\t"+str(veh2)+"\t"+str(app1.phase.isRed[-1]))
 			controller.advance()
+		#print(len(app1.vehs)+len(app2.vehs))
