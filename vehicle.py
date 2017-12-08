@@ -1,5 +1,6 @@
 import math
 import random
+import sys
 #Vehicle class
 class Vehicle:
 	def __init__(self, approach, time):
@@ -25,20 +26,23 @@ class Vehicle:
 		
 		vclear = self.pastVelocities[0] + 2.5 * self.maxAcceleration * self.reactionTime * (1-self.pastVelocities[0]/self.desiredSpeed) * (0.025 + self.pastVelocities[0]/self.desiredSpeed)**0.5
 		if not self.vehInFront == None:
-			vcar = self.maxBraking * self.reactionTime + ((self.maxBraking**2)*(self.reactionTime**2)-self.maxBraking*(2*(-self.vehInFront.pastPositions[0]+self.vehInFront.length+self.pastPositions[0])-self.pastVelocities[0]*self.reactionTime-self.vehInFront.pastVelocities[0]**2/self.bnminus1est))**0.5
+			vcar = self.maxBraking * self.reactionTime + max(0,((self.maxBraking**2)*(self.reactionTime**2)-self.maxBraking*(2*(-self.vehInFront.pastPositions[0]+self.vehInFront.length+self.pastPositions[0])-self.pastVelocities[0]*self.reactionTime-self.vehInFront.pastVelocities[0]**2/self.bnminus1est)))**0.5
 		else:
 			vcar = float('inf')
 		if self.phase.isRed[0]:
-			vlight = self.maxBraking * self.reactionTime + ((self.maxBraking**2)*(self.reactionTime**2)-self.maxBraking*(2*(self.pastPositions[0])-self.pastVelocities[0]*self.reactionTime))**0.5
+			vlight = self.maxBraking * self.reactionTime + max(0,((self.maxBraking**2)*(self.reactionTime**2)-self.maxBraking*(2*(self.pastPositions[0])-self.pastVelocities[0]*self.reactionTime)))**0.5
+			if self.pastPositions[-1] < 1:
+				vlight = vlight * (self.pastPositions[-1])
 		else:
 			vlight = float('inf')
-		v = min(vclear, vcar, vlight)
+		v = max(0,min(vclear, vcar, vlight))
 		self.pastVelocities.append(v)
 		del self.pastVelocities[0]
 		curPosition = self.pastPositions[-1]-v*0.1
 		self.pastPositions.append(curPosition)
 		del self.pastPositions[0]
 		if curPosition < 0:
+			sys.stdout.write(str(j-self.startTime)+",")
 			return True
 	
 	def delay(self):
