@@ -3,13 +3,11 @@ import queue
 from vehicle import *
 #Controller class
 class Controller:
-	activePhase = None
-	sequence = []
-	killed = False
 	
 	def __init__(self, p):
 		self.sequence = p
 		self.activePhase = 0
+		self.sequence[self.activePhase].start()
 	
 	def advance(self):
 		for i in range(len(self.sequence)):
@@ -19,15 +17,11 @@ class Controller:
 			self.sequence[self.activePhase].start()
 	
 class Phase:
-	elapsed = 0.0
-	min = 0.0
-	max = 0.0
-	demand = 0.0
-	approach = None
-	isRed = [True]*7
-	
 	id = None
 	def __init__(self,min, max):
+		self.elapsed = 0.0
+		self.approach = None
+		self.isRed = [True]*7
 		self.min = min
 		self.max = max
 	
@@ -67,12 +61,9 @@ class Phase:
 		self.elapsed = 0.0
 
 class Approach:
-	vehs = []
-	length = 0.0
-	ts = []
-	phase = None
-	
 	def __init__(self, phase, length, ts):
+		self.vehs = []
+		self.length = 0.0
 		self.phase = phase
 		self.phase.setApproach(self)
 		self.length = length
@@ -92,6 +83,6 @@ class Approach:
 			exited[i] = self.vehs[i].advance(j)
 		for i in range(len(exited)):
 			if exited[i]:
-				if self.vehs[i+1] != None:
-					self.vehs[i+1].vehInFront = None
-				del self.vehs[i]
+				if self.vehs[1] != None:
+					self.vehs[1].vehInFront = None
+				del self.vehs[0]

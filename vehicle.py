@@ -9,6 +9,7 @@ class Vehicle:
 		self.desiredSpeed = max(0,random.normalvariate(20.0, 3.2))
 		self.reactionTime = 2.0/3.0
 		self.bnminus1est = min(-3,(self.maxBraking-3.0))/2.0
+		self.approach = approach
 		self.phase = approach.phase
 		self.startTime = time
 		self.tripDist = 0.0
@@ -28,7 +29,7 @@ class Vehicle:
 		else:
 			vcar = float('inf')
 		if self.phase.isRed[0]:
-			vlight = self.maxBraking * self.reactionTime + ((self.maxBraking**2)*(self.reactionTime**2)-self.maxBraking*(2*(self.approach.length-self.pastPositions[0])-self.pastVelocities[0]*self.reactionTime))**0.5
+			vlight = self.maxBraking * self.reactionTime + ((self.maxBraking**2)*(self.reactionTime**2)-self.maxBraking*(2*(self.pastPositions[0])-self.pastVelocities[0]*self.reactionTime))**0.5
 		else:
 			vlight = float('inf')
 		v = min(vclear, vcar, vlight)

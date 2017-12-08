@@ -30,5 +30,5 @@ class Simulator:
 			if len(app1.vehs) > 1:
 				veh2 = app1.vehs[1]
 				veh2 = veh2.pastPositions[-1]
-			print("\r"+str(veh1)+"\t"+str(veh2))
+			print("\r"+str(veh1)+"\t"+str(veh2)+"\t"+str(app1.phase.isRed[-1]))
 			controller.advance()
