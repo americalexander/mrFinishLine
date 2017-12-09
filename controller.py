@@ -99,6 +99,6 @@ class Approach:
 			exited[i] = self.vehs[i].advance(j)
 		for i in range(len(exited)):
 			if exited[i]:
-				if self.vehs[1] != None:
+				if len(self.vehs)>1:
 					self.vehs[1].vehInFront = None
 				del self.vehs[0]
