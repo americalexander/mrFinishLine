@@ -35,7 +35,7 @@ class Vehicle:
 		self.pastPositions.append(curPosition)
 		del self.pastPositions[0]
 		if curPosition < 0:
-			sys.stdout.write(str(j-self.startTime)+",")
+			sys.stdout.write(str(j-self.startTime)+"\n")
 			return True
 	
 	def delay(self):

@@ -19,26 +19,37 @@ class Controller:
 class Phase:
 	def __init__(self,min, max):
 		self.elapsed = 0.0
+		self.extTime = 0.0
 		self.approach = None
 		self.isRed = [True]*7
 		self.min = min
 		self.max = max
 	
 	def extend(self):
-		# TODO: get positions of cars
-		veh = self.approach.vehs[0]
-		if (veh == None) or veh.pastPositions[-1] > veh.commRange:
+		TYPE = 2 #0 = base, 1 = V2I, 2 = Traditional
+		if TYPE == 1:
+			veh = self.approach.vehs[0]
+			if (veh == None) or veh.pastPositions[-1] > veh.commRange:
+				return False
+			vp = veh.pastPositions[-1]
+			
+			timeLeft = self.max - self.elapsed
+			ttt = timeLeft/10.0 * self.approach.speedLimit
+			
+			if ttt >= vp:
+				return True
+		elif TYPE == 2:
+			distBack = self.approach.speedLimit * 5
+			for veh in self.approach.vehs:
+				if veh.pastPositions[-1] > distBack and veh.pastPositions[-1] <= distBack + 2.44:
+					self.extTime = self.elapsed
+					break
+				elif veh.pastPositions[-1] > distBack+2.44:
+					break
+			if self.elapsed - self.extTime < 5:
+				return True
+		else:
 			return False
-		vp = veh.pastPositions[-1]
-		
-		# TODO: get threshold size
-		timeLeft = self.max - self.elapsed
-		ttt = timeLeft/10.0 * self.approach.speedLimit
-		
-		if ttt >= vp:
-			return True
-		
-		return False
 	
 	def advance(self):
 		if self.isRed[-1]:
@@ -48,6 +59,7 @@ class Phase:
 			if self.elapsed >= self.max:	#Reached max limit
 				self.isRed.append(True)		#Turn red
 			elif self.elapsed < self.min:	#Still in min time
+				self.extTime = self.elapsed
 				self.isRed.append(False)	#Stay green
 			elif self.extend():				#Extension based on V2I
 				self.isRed.append(False)	#Stay green
