@@ -17,7 +17,6 @@ class Controller:
 			self.sequence[self.activePhase].start()
 	
 class Phase:
-	id = None
 	def __init__(self,min, max):
 		self.elapsed = 0.0
 		self.approach = None
@@ -27,14 +26,17 @@ class Phase:
 	
 	def extend(self):
 		# TODO: get positions of cars
+		veh = self.approach.vehs[0]
+		if (veh == None) or veh.pastPositions[-1] > veh.commRange:
+			return False
+		vp = veh.pastPositions[-1]
 		
 		# TODO: get threshold size
+		timeLeft = self.max - self.elapsed
+		ttt = timeLeft/10.0 * self.approach.speedLimit
 		
-		# TODO: use CFM to update all vehicle speeds
-		
-		# TODO: use previous speeds to update positions
-		
-		# TODO: use new positions to determine if there is a car inside threshold
+		if ttt >= vp:
+			return True
 		
 		return False
 	
@@ -65,6 +67,7 @@ class Approach:
 		self.vehs = []
 		self.length = 0.0
 		self.phase = phase
+		self.speedLimit = 20.0
 		self.phase.setApproach(self)
 		self.length = length
 		self.ts = ts
