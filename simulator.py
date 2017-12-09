@@ -7,11 +7,12 @@ class Simulator:
 		random.seed(seed)
 		
 		limit = 18000
-		demand = 200
+		demand = 400.0
 		ts1 = []
 		ts2 = []
-		for i in range(demand):
+		for i in range(int(demand*0.7)):
 			ts1.append(random.randint(0,limit))
+		for i in range(int(demand*0.3)):
 			ts2.append(random.randint(0,limit))
 		p1 = Phase(300,500, True)
 		app1 = Approach(p1, 4000, ts1)
