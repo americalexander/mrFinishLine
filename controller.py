@@ -17,7 +17,8 @@ class Controller:
 			self.sequence[self.activePhase].start()
 	
 class Phase:
-	def __init__(self,min, max):
+	def __init__(self,min, max, extender):
+		self.ext = extender
 		self.elapsed = 0.0
 		self.extTime = 0.0
 		self.approach = None
@@ -27,7 +28,7 @@ class Phase:
 	
 	def extend(self):
 		TYPE = 2 #0 = base, 1 = V2I, 2 = Traditional
-		if TYPE == 1:
+		if self.ext and TYPE == 1:
 			veh = self.approach.vehs[0]
 			if (veh == None) or veh.pastPositions[-1] > veh.commRange:
 				return False
@@ -38,7 +39,7 @@ class Phase:
 			
 			if ttt >= vp:
 				return True
-		elif TYPE == 2:
+		elif self.ext and TYPE == 2:
 			distBack = self.approach.speedLimit * 5
 			for veh in self.approach.vehs:
 				if veh.pastPositions[-1] > distBack and veh.pastPositions[-1] <= distBack + 2.44:

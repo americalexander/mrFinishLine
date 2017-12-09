@@ -13,9 +13,9 @@ class Simulator:
 		for i in range(demand):
 			ts1.append(random.randint(0,limit))
 			ts2.append(random.randint(0,limit))
-		p1 = Phase(300,500)
+		p1 = Phase(300,500, True)
 		app1 = Approach(p1, 4000, ts1)
-		p2 = Phase(300,500)
+		p2 = Phase(300,500, False)
 		app2 = Approach(p2, 4000, ts2)
 		controller = Controller([p1,p2])
 		i = 0
